@@ -132,3 +132,55 @@ def step_impl(context, element_name, text_string):
     )
     element.clear()
     element.send_keys(text_string)
+
+
+# Click any button by its name
+@when('I press the "{button}" button')
+def step_impl(context, button):
+    button_id = button.lower().replace(" ", "-") + "-btn"
+
+    element = WebDriverWait(
+        context.driver, context.wait_seconds
+    ).until(
+        expected_conditions.element_to_be_clickable(
+            (By.ID, button_id)
+        )
+    )
+    element.click()
+
+
+# Verify a status message
+@then('I should see the message "{message}"')
+def step_impl(context, message):
+    found = WebDriverWait(
+        context.driver, context.wait_seconds
+    ).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, "flash_message"), message
+        )
+    )
+    assert found, f"Expected status message: {message}"
+
+
+# Verify a product appears in search results
+@then('I should see "{text}" in the results')
+def step_impl(context, text):
+    found = WebDriverWait(
+        context.driver, context.wait_seconds
+    ).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, "search_results"), text
+        )
+    )
+    assert found, f"Expected '{text}' in search results"
+
+
+# Verify a product is absent from search results
+@then('I should not see "{text}" in the results')
+def step_impl(context, text):
+    element = context.driver.find_element(
+        By.ID, "search_results"
+    )
+    assert text not in element.text, (
+        f"Unexpected '{text}' found in search results"
+    )
